@@ -11,8 +11,8 @@ namespace DPB.Tests.SourceDir
     {
         public TestManifestKeep()
         {
-            //DPBMARK MP
-            var tip = "this line will stay here in OutputDir while Conditions have MP keyword.";
+            //DPBMARK CYSOFT
+            var tip = "this line will stay here in OutputDir while Conditions have CYSOFT keyword.";
             //DPBMARK_END
 
             //DPBMARK NotStay

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+
 using DPB.Models;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Senparc.CO2NET.Extensions;
 using Senparc.CO2NET.Helpers;
 
@@ -19,7 +22,7 @@ namespace DPB.Tests
             var json = @"{
 ""SourceDir"":"""",
 ""OutputDir"":"""",
-""Paths"":[{
+""ConfigGroup"":[{
     ""Files"":[],
     ""KeepFileConiditions"":[],
     ""KeepContentConiditions"":[],
@@ -41,12 +44,14 @@ namespace DPB.Tests
             var outputDir = "..\\..\\OutputDir";//or absolute address: e:\ThisProject\Output
             Manifest manifest = new Manifest(sourceDir, outputDir);
 
-            //keep content Condition - while all the code blocks in *.cs files with keywrod mark: DPBMARK MP
+            #region 内容保留或文件保留
+
+            // 保留内容条件 - 当*.cs文件中使用注释关键字DPBMARK CYSOFT标记代码块时（大小写敏感）
             manifest.ConfigGroup.Add(new GroupConfig()
             {
                 Files = new List<string>() { "*.cs" },
                 OmitChangeFiles = new List<string>() { "*-Keep.cs" },
-                KeepContentConiditions = new List<string>() { "MP" }
+                KeepContentConiditions = new List<string>() { "CYSOFT" }
             });
 
             //keep files Condition - Keep
@@ -54,21 +59,32 @@ namespace DPB.Tests
             {
                 Files = new List<string>() { "*.txt" },
                 KeepFileConiditions = new List<string>() { "Keep" },
-                 //KeepContentConiditions= new List<string>() { "o","k"}
+                //KeepContentConiditions= new List<string>() { "o","k"}
             });
 
-            //change certain string content
+            manifest.ConfigGroup.Add(new GroupConfig()
+            {
+                Files = new List<string>() { "KeepPartsOfContent.txt" },
+                KeepFileConiditions = new List<string>() { "KeepPartsOfContent" },
+                KeepContentConiditions = new List<string>() { "KeepPartsOfContent" },
+            });
+
+            #endregion 内容保留或文件保留
+
+            #region 替换字符串内容
 
             manifest.ConfigGroup.Add(new GroupConfig()
             {
                 Files = new List<string>() { "StringReplaceFile.txt", "RegexReplaceFile.txt" },
                 ReplaceContents = new List<ReplaceContent>() {
+                    // 匹配替换
                      new ReplaceContent(){
                              StringContent=new StringContent(){
                                  String="<This conent will be replaced by StringContent>",
                                   ReplaceContent="[This is new content, replaced by StringContent]"
                              }
                      },
+                     // 正则替换
                      new ReplaceContent(){
                           RegexContent = new RegexContent(){
                                   Pattern = @"\<[^\>]*\>",
@@ -79,7 +95,10 @@ namespace DPB.Tests
                  }
             });
 
-            //change xml nodes' value
+            #endregion 替换字符串内容
+
+            #region 修改xml节点值
+
             var pathConfigXml = new GroupConfig()
             {
                 Files = new List<string>() { "*.xml" }
@@ -102,8 +121,10 @@ namespace DPB.Tests
             });
             manifest.ConfigGroup.Add(pathConfigXml);
 
+            #endregion 修改xml节点值
 
-            //change jaon nodes' value
+            #region 修改json节点值
+
             var pathConfigJson = new GroupConfig()
             {
                 Files = new List<string>() { "*.json" }
@@ -119,7 +140,10 @@ namespace DPB.Tests
             });
             manifest.ConfigGroup.Add(pathConfigJson);
 
-            //remove file
+            #endregion 修改json节点值
+
+            #region 删除文件
+
             manifest.ConfigGroup.Add(new GroupConfig()
             {
                 Files = new List<string>() { "FileRemove*.txt" },
@@ -127,7 +151,10 @@ namespace DPB.Tests
                 RemoveFiles = true
             });
 
-            //remove directories
+            #endregion 删除文件
+
+            #region 删除目录
+
             manifest.ConfigGroup.Add(new GroupConfig()
             {
                 RemoveDictionaries = new List<string>() {
@@ -136,14 +163,10 @@ namespace DPB.Tests
               }
             });
 
-            //.net core file test
-            manifest.ConfigGroup.Add(new GroupConfig()
-            {
-                Files = new List<string>() { "Startup.cs.txt" },
-                KeepContentConiditions = new List<string>() { "MP", "Redis" }
-            });
+            #endregion 删除目录
 
-            //custom functions
+            #region 自定义
+
             manifest.ConfigGroup.Add(new GroupConfig()
             {
                 Files = new List<string>() { "CustomFunctionFile1.txt" },
@@ -177,12 +200,17 @@ namespace DPB.Tests
                 }
             });
 
+            #endregion 自定义
+
+            //.net core file test
             manifest.ConfigGroup.Add(new GroupConfig()
             {
-                Files = new List<string>() { "KeepPartsOfContent.txt" },
-                KeepFileConiditions = new List<string>() { "KeepPartsOfContent" },
-                KeepContentConiditions = new List<string>() { "KeepPartsOfContent" },
+                Files = new List<string>() { "Startup.cs.txt" },
+                KeepContentConiditions = new List<string>() { "MP", "Redis" }
             });
+
+            var json_manifest = manifest.ToJson();
+            Console.WriteLine(json_manifest);
 
             LetsGo letsGo = new LetsGo(manifest);
             letsGo.Build();
