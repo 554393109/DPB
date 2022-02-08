@@ -68,15 +68,15 @@ it will keep the code in your source project with the certain code block:
             var tip = "this line will stay here in OutputDir while Conditions have MP keyword.";
             //PDBMARK_END
 ```
-When another code block with `PDBMARK OTHER` instead of `PDBMARK MP` in the file region, the block will be removed.
+当文件区域中的另一个代码块带有' PDBMARK OTHER '而不是' PDBMARK MP '时，该代码块将被删除。
 
-You can also set multiple `KeepContentConiditions` keywords to keep the code stay in new project.
+你也可以设置多个“KeepContentConiditions”关键字来保持代码留在新项目中。
 
-The code (or any text file content) with out `PDBMARK` mark bolck will always keep in new project.
+代码(或任何文本文件内容)没有' PDBMARK '标记bolck将始终保持在新项目。
 
 #### Delete whole file
 
-If you want to remove a file, just Add the following code into the file in any where:
+如果你想删除一个文件，只需在文件的任何地方添加以下代码:
 
 > PDBMARK_FILE RemoveFile
 
